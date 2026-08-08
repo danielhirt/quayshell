@@ -17,8 +17,8 @@ jobs:
         python: ['3.11', '3.12', '3.13']
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python }}
       - name: Install test tools
@@ -26,13 +26,13 @@ jobs:
       - name: Install Zsh
         run: sudo apt-get update && sudo apt-get install --yes zsh
       - name: Run tests
-        run: pytest
+        run: python -m pytest
 
   quality:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.13'
       - name: Install tools
@@ -57,7 +57,7 @@ jobs:
           bash -n packaging/arch/PKGBUILD
       - name: Build packages
         run: python -m build
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: quayshell-python-packages
           path: dist/*
@@ -65,7 +65,7 @@ jobs:
   nix:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: DeterminateSystems/nix-installer-action@v17
       - name: Evaluate flake
         run: nix flake check --no-build
