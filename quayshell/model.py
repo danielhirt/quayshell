@@ -156,6 +156,38 @@ def clamp_panel_position(
     )
 
 
+def snap_panel_position(
+    monitor: MonitorGeometry,
+    position: PanelPosition,
+    *,
+    panel_width: int,
+    panel_height: int,
+    distance: int,
+) -> PanelPosition:
+    """Snap a panel to nearby usable monitor edges."""
+    bounded = clamp_panel_position(
+        monitor,
+        position,
+        panel_width=panel_width,
+        panel_height=panel_height,
+    )
+    left = monitor.reserved_left
+    top = monitor.reserved_top
+    right = max(left, monitor.width - monitor.reserved_right - panel_width)
+    bottom = max(top, monitor.height - monitor.reserved_bottom - panel_height)
+    x = bounded.x
+    y = bounded.y
+    if x - left <= distance:
+        x = left
+    elif right - x <= distance:
+        x = right
+    if y - top <= distance:
+        y = top
+    elif bottom - y <= distance:
+        y = bottom
+    return PanelPosition(x, y)
+
+
 def resize_from_top_left(
     monitor: MonitorGeometry,
     desired_position: PanelPosition,

@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Quayshell
+Comment=Open a persistent Wayland terminal
+Exec=quayshell
+Icon=dev.danielh.quayshell
+Terminal=false
+Categories=System;TerminalEmulator;
+Keywords=terminal;shell;wayland;
+StartupNotify=false

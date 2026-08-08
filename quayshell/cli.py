@@ -21,6 +21,16 @@ class Options:
     shell: str | None
     max_scale: float
     cross_monitor: bool
+    smart_collapse: bool
+    expand_on_failure: bool
+    notify_on_completion: bool
+    notification_after_seconds: float
+    result_seconds: float
+    mascot: bool
+    magnetic_docking: bool
+    snap_distance: int
+    backend: str
+    remote_action: str | None
 
 
 def positive_integer(value: str) -> int:
@@ -101,10 +111,38 @@ def build_parser(config: Config | None = None) -> argparse.ArgumentParser:
         help=f"maximum resize scale (default: {defaults.max_scale:g})",
     )
     parser.add_argument(
+        "--backend",
+        choices=("auto", "generic", "hyprland", "sway"),
+        default=defaults.backend,
+        help=f"compositor backend (default: {defaults.backend})",
+    )
+    parser.add_argument(
         "--cross-monitor",
         action=argparse.BooleanOptionalAction,
         default=defaults.cross_monitor,
         help="allow dragging between outputs (default: enabled)",
+    )
+    remote = parser.add_mutually_exclusive_group()
+    remote.add_argument(
+        "--summon",
+        action="store_const",
+        const="summon",
+        dest="remote_action",
+        help="move a running Quayshell to the pointer",
+    )
+    remote.add_argument(
+        "--home",
+        action="store_const",
+        const="home",
+        dest="remote_action",
+        help="return a running Quayshell to its home position",
+    )
+    remote.add_argument(
+        "--diagnose",
+        action="store_const",
+        const="diagnose",
+        dest="remote_action",
+        help="report runtime support and optional features",
     )
     return parser
 
@@ -126,4 +164,14 @@ def parse_args(
         shell=args.shell,
         max_scale=args.max_scale,
         cross_monitor=args.cross_monitor,
+        smart_collapse=defaults.smart_collapse,
+        expand_on_failure=defaults.expand_on_failure,
+        notify_on_completion=defaults.notify_on_completion,
+        notification_after_seconds=defaults.notification_after_seconds,
+        result_seconds=defaults.result_seconds,
+        mascot=defaults.mascot,
+        magnetic_docking=defaults.magnetic_docking,
+        snap_distance=defaults.snap_distance,
+        backend=args.backend,
+        remote_action=args.remote_action,
     )

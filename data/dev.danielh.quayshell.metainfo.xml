@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>dev.danielh.quayshell</id>
+  <name>Quayshell</name>
+  <summary>Persistent Wayland terminal</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>MIT</project_license>
+  <description>
+    <p>Quayshell keeps one terminal available above normal Wayland windows. It shows command activity and provides movable layer-shell placement.</p>
+    <p>Compositor backends add output controls when the compositor provides the required data.</p>
+  </description>
+  <developer id="github.com/danielhirt">
+    <name>Daniel Hirt</name>
+  </developer>
+  <launchable type="desktop-id">dev.danielh.quayshell.desktop</launchable>
+  <provides>
+    <binary>quayshell</binary>
+  </provides>
+  <url type="homepage">https://github.com/danielhirt/quayshell</url>
+  <content_rating type="oars-1.1" />
+</component>

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "quayshell"
-version = "0.1.0"
+version = "0.3.0"
 description = "Persistent Wayland terminal built with GTK4, VTE4, and layer-shell"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -23,8 +23,24 @@ dev = ["pytest>=8"]
 [project.scripts]
 quayshell = "quayshell.__main__:main"
 
+[tool.setuptools]
+packages = [
+    "quayshell",
+    "quayshell.shell_integration",
+    "quayshell.shell_integration.zsh",
+]
+
+[tool.setuptools.data-files]
+"share/applications" = ["data/dev.danielh.quayshell.desktop"]
+"share/metainfo" = ["data/dev.danielh.quayshell.metainfo.xml"]
+"share/icons/hicolor/scalable/apps" = ["data/dev.danielh.quayshell.svg"]
+
 [tool.setuptools.package-data]
-quayshell = ["style.css"]
+quayshell = [
+    "style.css",
+    "shell_integration/bash",
+    "shell_integration/zsh/.zshrc",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

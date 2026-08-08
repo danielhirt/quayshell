@@ -14,6 +14,10 @@ The application does not request keyboard focus when it starts. Click the termin
 - Moves between connected Hyprland outputs while you drag it.
 - Shows a close button when the pointer approaches the top right.
 - Expands from a short panel to the usable screen height.
+- Shows the running command, elapsed time, and last exit status.
+- Includes a small status mascot that reacts to shell activity.
+- Collapses an expanded panel when a command starts and reopens it after a failure.
+- Sends a desktop notification when a long command finishes.
 - Supports terminal selection, scrollback, ANSI colors, and clipboard actions.
 - Can track a bottom dock through Hyprland IPC.
 - Uses fixed bottom-right placement when dock data is unavailable.
@@ -27,6 +31,8 @@ Install these packages on Arch Linux:
 ```sh
 sudo pacman -S --needed python python-gobject gtk4 gtk4-layer-shell vte4
 ```
+
+See [Installation](docs/install.md) for Fedora, Ubuntu, Debian, openSUSE, NixOS, and Flatpak instructions.
 
 ## Run from the repository
 
@@ -62,9 +68,40 @@ The controls use separate pointer zones. Moving through the terminal body does n
 
 The resize keeps the bottom-right corner fixed. The default maximum is 2.5 times the startup width and height. The selected output also limits the size.
 
-Dragging uses Hyprland cursor and monitor data because Wayland does not give layer surfaces a standard move operation. When the pointer enters another output, Quayshell moves the layer surface to that output. The panel stays within the usable bounds of its current output and does not span outputs. The new output, position, and size last until Quayshell exits.
+GTK drag offsets provide same-output movement and resizing on supported layer-shell compositors. Hyprland adds global cursor and monitor data. When the pointer enters another Hyprland output, Quayshell moves the layer surface to that output. The panel stays within the usable bounds of its current output and does not span outputs. The new output, position, and size last until Quayshell exits.
 
 Set `cross_monitor = false` in the configuration or use `--no-cross-monitor` to keep the panel on its startup output.
+
+Magnetic docking snaps the panel to nearby usable output edges and corners. Set `magnetic_docking = false` to disable it. Change `snap_distance` to control the capture distance.
+
+## Command activity
+
+Quayshell includes shell integration for Bash and Zsh. The integration emits OSC 133 command markers and private VTE properties. Quayshell uses these signals to track command start, completion, and exit status. It reads the foreground process from the pseudo-terminal to show the command name.
+
+If you run a command while the panel is expanded, smart collapse returns it to its short size. A failed command expands the panel again. Commands that exceed `notification_after_seconds` send a desktop notification. Select the notification to summon Quayshell.
+
+The status mascot is optional. Set `mascot = false` to hide it.
+
+## Summon Quayshell
+
+Move a running Quayshell to the pointer:
+
+```sh
+quayshell --summon
+```
+
+Return it to its configured startup output and position:
+
+```sh
+quayshell --home
+```
+
+You can bind these commands in Hyprland:
+
+```ini
+bind = SUPER, grave, exec, quayshell --summon
+bind = SUPER SHIFT, grave, exec, quayshell --home
+```
 
 ## Configuration
 
@@ -85,6 +122,19 @@ cross_monitor = true
 [terminal]
 font = "Monospace 11"
 shell = "/bin/bash"
+
+[compositor]
+backend = "auto"
+
+[behavior]
+smart_collapse = true
+expand_on_failure = true
+notify_on_completion = true
+notification_after_seconds = 5.0
+result_seconds = 8.0
+mascot = true
+magnetic_docking = true
+snap_distance = 24
 ```
 
 Omit `monitor`, `dock_namespace`, or `shell` to use automatic values. Command-line options override matching file settings. See `config.example.toml` for the default configuration.
@@ -107,7 +157,7 @@ quayshell --monitor HDMI-A-1 --dock-namespace nwg-dock
 
 Quayshell checks the dock geometry once per second. It matches the dock height. It fills the space to the right screen edge. It uses fixed placement if the layer is absent or is not a bottom dock.
 
-A manual move or resize stops dock tracking until Quayshell restarts.
+A manual move, resize, or summon stops dock tracking until Quayshell restarts.
 
 ## Options
 
@@ -120,7 +170,11 @@ A manual move or resize stops dock tracking until Quayshell restarts.
 --font DESCRIPTION      Pango font description. Default: Monospace 11.
 --shell PATH            Login shell path. Default: $SHELL.
 --max-scale SCALE       Maximum resize scale. Default: 2.5.
+--backend NAME          auto, generic, hyprland, or sway.
 --[no-]cross-monitor    Allow or prevent dragging between outputs.
+--summon                 Move a running Quayshell to the pointer.
+--home                   Return a running Quayshell home.
+--diagnose               Report runtime support and optional features.
 ```
 
 ## Shortcuts
@@ -138,17 +192,19 @@ The layer namespace is `quayshell`. Add a Hyprland layer rule for this namespace
 
 The GTK style is in `quayshell/style.css`.
 
-## Planned portability work
+## Linux support
 
-Quayshell currently supports Linux and Wayland. Hyprland provides the data for moving, resizing, output switching, and dock tracking.
+Quayshell selects a Hyprland, Sway, or generic Wayland backend at runtime. Unsupported optional features remain disabled while the terminal, shell activity, movement, and resizing continue to work.
 
-Before a broad release:
+Run the diagnostic report before you report a platform problem:
 
-1. Add platform and compositor checks. Show clear errors when Linux, Wayland, GTK4, VTE4, layer-shell, or required compositor tools are unavailable.
-2. Add install instructions for Arch Linux, Fedora, Ubuntu, openSUSE, and NixOS. List the correct system packages for each distribution.
-3. Add compositor adapters. Keep Hyprland support behind an interface, then add backends for other compositors where their APIs permit the same controls.
-4. Add release packages. Evaluate an Arch package, Flatpak, and native distribution packages.
-5. Add CI for supported Python and Linux versions. Include unit tests, package builds, and compositor-specific smoke tests where possible.
+```sh
+quayshell --diagnose
+```
+
+See [Platform support](docs/support.md) for the feature matrix and current limits. GNOME remains unsupported because it does not implement layer-shell.
+
+The repository contains package templates for Arch, Fedora, Debian, openSUSE, Nix, and Flatpak. Clean container builds pass for the native package templates. The Flatpak build also passes, but current Hyprland security filters its required layer-shell protocol. CI tests Python 3.11 through 3.13 on two Ubuntu releases. It also checks shell hooks, formatting, package builds, and Nix evaluation.
 
 ## Test
 

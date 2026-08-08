@@ -12,3 +12,17 @@ cross_monitor = true
 font = "Monospace 11"
 # Omit shell to use $SHELL.
 # shell = "/bin/bash"
+
+[compositor]
+# auto, generic, hyprland, or sway
+backend = "auto"
+
+[behavior]
+smart_collapse = true
+expand_on_failure = true
+notify_on_completion = true
+notification_after_seconds = 5.0
+result_seconds = 8.0
+mascot = true
+magnetic_docking = true
+snap_distance = 24

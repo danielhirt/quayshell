@@ -1,0 +1,55 @@
+app-id: dev.danielh.quayshell
+runtime: org.gnome.Platform
+runtime-version: '50'
+sdk: org.gnome.Sdk
+command: quayshell
+finish-args:
+  - --socket=wayland
+  - --share=ipc
+  - --device=dri
+  - --talk-name=org.freedesktop.Notifications
+  - --talk-name=org.freedesktop.Flatpak
+modules:
+  - name: simdutf
+    buildsystem: cmake-ninja
+    config-opts:
+      - -DSIMDUTF_TESTS=OFF
+      - -DSIMDUTF_TOOLS=OFF
+    sources:
+      - type: archive
+        url: https://github.com/simdutf/simdutf/archive/refs/tags/v8.2.0.tar.gz
+        sha256: 033a91b1d7d1cb818c1eff49e61faaa1b64a3a530d59ef9efef0195e56bda8b1
+  - name: fast-float
+    buildsystem: cmake-ninja
+    sources:
+      - type: archive
+        url: https://github.com/fastfloat/fast_float/archive/refs/tags/v8.1.0.tar.gz
+        sha256: 4bfabb5979716995090ce68dce83f88f99629bc17ae280eae79311c5340143e1
+  - name: vte
+    buildsystem: meson
+    config-opts:
+      - -Ddocs=false
+      - -Dgir=true
+      - -Dgtk3=false
+      - -Dgtk4=true
+    sources:
+      - type: archive
+        url: https://gitlab.gnome.org/GNOME/vte/-/archive/0.84.1/vte-0.84.1.tar.gz
+        sha256: 9f73468982a339cd1eb942beb7d348a5564c9ed48473ad1690c791f8474916ec
+  - name: gtk4-layer-shell
+    buildsystem: meson
+    config-opts:
+      - -Dexamples=false
+      - -Ddocs=false
+      - -Dtests=false
+    sources:
+      - type: git
+        url: https://github.com/wmww/gtk4-layer-shell.git
+        commit: 1c963c51514581c41b9bdae08cdf69171265cdda
+  - name: quayshell
+    buildsystem: simple
+    build-commands:
+      - pip3 install --no-build-isolation --no-deps --prefix=/app .
+    sources:
+      - type: dir
+        path: ../..

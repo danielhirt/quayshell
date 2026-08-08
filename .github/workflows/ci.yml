@@ -1,0 +1,71 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Python ${{ matrix.python }} on ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, ubuntu-24.04]
+        python: ['3.11', '3.12', '3.13']
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install test tools
+        run: python -m pip install pytest
+      - name: Install Zsh
+        run: sudo apt-get update && sudo apt-get install --yes zsh
+      - name: Run tests
+        run: pytest
+
+  quality:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install tools
+        run: python -m pip install build ruff
+      - name: Check Python
+        run: |
+          ruff check .
+          ruff format --check .
+          python -m compileall -q quayshell tests
+      - name: Check shell integration
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes zsh
+          bash -n quayshell/shell_integration/bash
+          zsh -n quayshell/shell_integration/zsh/.zshrc
+      - name: Check release and desktop metadata
+        run: |
+          sudo apt-get install --yes appstream desktop-file-utils
+          python scripts/check_release_metadata.py
+          desktop-file-validate data/dev.danielh.quayshell.desktop
+          appstreamcli validate --no-net data/dev.danielh.quayshell.metainfo.xml
+          bash -n packaging/arch/PKGBUILD
+      - name: Build packages
+        run: python -m build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: quayshell-python-packages
+          path: dist/*
+
+  nix:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@v17
+      - name: Evaluate flake
+        run: nix flake check --no-build

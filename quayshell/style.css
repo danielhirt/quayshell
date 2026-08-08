@@ -9,6 +9,28 @@ window {
   padding: 8px;
 }
 
+.activity-label,
+.status-mascot {
+  color: rgba(201, 209, 219, 0.48);
+  font-family: monospace;
+  font-size: 10px;
+}
+
+.activity-label.running,
+.status-mascot.running {
+  color: rgba(122, 204, 198, 0.68);
+}
+
+.activity-label.success,
+.status-mascot.success {
+  color: rgba(145, 201, 165, 0.68);
+}
+
+.activity-label.failure,
+.status-mascot.failure {
+  color: rgba(237, 124, 134, 0.72);
+}
+
 .resize-handle {
   border-top: 1px solid rgba(201, 209, 219, 0.32);
   border-left: 1px solid rgba(201, 209, 219, 0.32);

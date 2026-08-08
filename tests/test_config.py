@@ -24,6 +24,19 @@ cross_monitor = false
 [terminal]
 font = "Monospace 13"
 shell = "/bin/bash"
+
+[compositor]
+backend = "generic"
+
+[behavior]
+smart_collapse = false
+expand_on_failure = false
+notify_on_completion = false
+notification_after_seconds = 2.0
+result_seconds = 12.0
+mascot = false
+magnetic_docking = false
+snap_distance = 40
 """
     )
 
@@ -37,6 +50,15 @@ shell = "/bin/bash"
         cross_monitor=False,
         font="Monospace 13",
         shell="/bin/bash",
+        smart_collapse=False,
+        expand_on_failure=False,
+        notify_on_completion=False,
+        notification_after_seconds=2.0,
+        result_seconds=12.0,
+        mascot=False,
+        magnetic_docking=False,
+        snap_distance=40,
+        backend="generic",
     )
 
 
@@ -62,6 +84,14 @@ def test_rejects_nonboolean_cross_monitor(tmp_path):
     path.write_text('[window]\ncross_monitor = "yes"\n')
 
     with pytest.raises(ConfigError, match="true or false"):
+        load_config(path)
+
+
+def test_rejects_unknown_backend(tmp_path):
+    path = tmp_path / "config.toml"
+    path.write_text('[compositor]\nbackend = "mir"\n')
+
+    with pytest.raises(ConfigError, match="must be one of"):
         load_config(path)
 
 

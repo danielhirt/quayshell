@@ -10,6 +10,7 @@ from quayshell.model import (
     placement_beside_bottom_dock,
     position_from_placement,
     resize_from_top_left,
+    snap_panel_position,
     window_controls_for_pointer,
 )
 
@@ -93,6 +94,35 @@ def test_top_left_proximity_shows_only_resize_handle():
         False,
         False,
     )
+
+
+def test_magnetic_docking_snaps_to_nearby_edges():
+    monitor = MonitorGeometry(
+        "DP-1",
+        0,
+        0,
+        1000,
+        800,
+        reserved_left=10,
+        reserved_top=20,
+        reserved_right=30,
+        reserved_bottom=40,
+    )
+
+    assert snap_panel_position(
+        monitor,
+        PanelPosition(28, 648),
+        panel_width=200,
+        panel_height=100,
+        distance=24,
+    ) == PanelPosition(10, 660)
+    assert snap_panel_position(
+        monitor,
+        PanelPosition(400, 300),
+        panel_width=200,
+        panel_height=100,
+        distance=24,
+    ) == PanelPosition(400, 300)
 
 
 def test_resize_from_top_left_enforces_default_maximum():

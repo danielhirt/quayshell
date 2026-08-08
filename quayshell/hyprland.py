@@ -5,50 +5,17 @@ from __future__ import annotations
 import json
 import subprocess
 from collections.abc import Callable
-from dataclasses import dataclass
 from typing import Any
 
+from quayshell.compositor import Capability, CompositorError, CompositorSnapshot
 from quayshell.model import LayerGeometry, MonitorGeometry
 
 
-class HyprlandError(RuntimeError):
+class HyprlandError(CompositorError):
     """Hyprland IPC returned invalid data or no data."""
 
 
-@dataclass(frozen=True)
-class HyprlandSnapshot:
-    monitors: tuple[MonitorGeometry, ...]
-    layers: tuple[LayerGeometry, ...]
-
-    def monitor(self, requested_name: str | None = None) -> MonitorGeometry | None:
-        if requested_name:
-            return next(
-                (item for item in self.monitors if item.name == requested_name), None
-            )
-        return next(
-            (item for item in self.monitors if item.focused),
-            self.monitors[0] if self.monitors else None,
-        )
-
-    def monitor_at(self, x: int, y: int) -> MonitorGeometry | None:
-        return next(
-            (
-                item
-                for item in self.monitors
-                if item.x <= x < item.right and item.y <= y < item.bottom
-            ),
-            None,
-        )
-
-    def layer(self, namespace: str, monitor_name: str) -> LayerGeometry | None:
-        return next(
-            (
-                item
-                for item in self.layers
-                if item.namespace == namespace and item.monitor == monitor_name
-            ),
-            None,
-        )
+HyprlandSnapshot = CompositorSnapshot
 
 
 def parse_monitors(data: Any) -> tuple[MonitorGeometry, ...]:
@@ -113,11 +80,24 @@ def _run_hyprctl(arguments: list[str]) -> Any:
 
 
 class HyprlandClient:
+    name = "hyprland"
+    capabilities = frozenset(
+        {
+            Capability.OUTPUTS,
+            Capability.GLOBAL_CURSOR,
+            Capability.LAYERS,
+            Capability.RESERVED_EDGES,
+            Capability.CROSS_OUTPUT_DRAG,
+            Capability.SUMMON_TO_POINTER,
+            Capability.DOCK_TRACKING,
+        }
+    )
+
     def __init__(self, runner: Callable[[list[str]], Any] = _run_hyprctl):
         self._runner = runner
 
-    def snapshot(self) -> HyprlandSnapshot:
-        return HyprlandSnapshot(
+    def snapshot(self) -> CompositorSnapshot:
+        return CompositorSnapshot(
             monitors=parse_monitors(self._runner(["monitors"])),
             layers=parse_layers(self._runner(["layers"])),
         )

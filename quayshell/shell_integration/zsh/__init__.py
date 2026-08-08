@@ -1,0 +1,1 @@
+"""Packaged Zsh integration file."""

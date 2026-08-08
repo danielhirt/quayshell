@@ -4,5 +4,7 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 .venv/
+.flatpak-builder/
+.flatpak-build/
 build/
 dist/

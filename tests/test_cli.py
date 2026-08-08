@@ -22,6 +22,10 @@ def test_default_options():
     assert options.font == "Monospace 11"
     assert options.max_scale == 2.5
     assert options.cross_monitor is True
+    assert options.smart_collapse is True
+    assert options.magnetic_docking is True
+    assert options.backend == "auto"
+    assert options.remote_action is None
 
 
 def test_custom_options():
@@ -42,6 +46,8 @@ def test_custom_options():
             "--shell",
             "/bin/zsh",
             "--no-cross-monitor",
+            "--backend",
+            "generic",
         ]
     )
 
@@ -53,6 +59,7 @@ def test_custom_options():
     assert options.shell == "/bin/zsh"
     assert options.max_scale == 2.5
     assert options.cross_monitor is False
+    assert options.backend == "generic"
 
 
 @pytest.mark.parametrize("value", ["0", "-1"])
@@ -79,6 +86,12 @@ def test_config_values_reach_options_and_cli_overrides_them():
 def test_scale_rejects_values_below_one_or_nonfinite(value):
     with pytest.raises(argparse.ArgumentTypeError):
         scale_at_least_one(value)
+
+
+def test_remote_action_options():
+    assert parse_args(["--summon"]).remote_action == "summon"
+    assert parse_args(["--home"]).remote_action == "home"
+    assert parse_args(["--diagnose"]).remote_action == "diagnose"
 
 
 def test_nonnegative_integer_accepts_zero():

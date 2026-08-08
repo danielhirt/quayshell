@@ -1,0 +1,31 @@
+pkgname=quayshell
+pkgver=0.3.0
+pkgrel=1
+pkgdesc='Persistent Wayland terminal built with GTK4, VTE4, and layer-shell'
+arch=('any')
+url='https://github.com/danielhirt/quayshell'
+license=('MIT')
+depends=('gtk4' 'gtk4-layer-shell' 'python' 'python-gobject' 'vte4')
+makedepends=('python-build' 'python-installer' 'python-setuptools' 'python-wheel')
+checkdepends=('python-pytest' 'zsh')
+source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz")
+# Replace SKIP with the release archive checksum before publication.
+sha256sums=('SKIP')
+
+build() {
+  cd "$pkgname-$pkgver"
+  python -m build --wheel --no-isolation
+}
+
+check() {
+  cd "$pkgname-$pkgver"
+  PYTHONPATH="$PWD" pytest
+}
+
+package() {
+  cd "$pkgname-$pkgver"
+  python -m installer --destdir="$pkgdir" dist/*.whl
+  install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+  install -Dm644 config.example.toml \
+    "$pkgdir/usr/share/doc/$pkgname/config.example.toml"
+}
