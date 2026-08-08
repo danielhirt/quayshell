@@ -1,0 +1,42 @@
+window {
+  background-color: transparent;
+}
+
+.quayshell-frame {
+  background-color: rgba(6, 10, 16, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 12px;
+  padding: 8px;
+}
+
+.resize-handle {
+  border-top: 1px solid rgba(201, 209, 219, 0.32);
+  border-left: 1px solid rgba(201, 209, 219, 0.32);
+  border-radius: 4px 0 0 0;
+}
+
+.drag-handle {
+  background-color: rgba(201, 209, 219, 0.22);
+  border-radius: 999px;
+}
+
+.close-button {
+  min-width: 18px;
+  min-height: 18px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 999px;
+  background-color: rgba(18, 24, 33, 0.46);
+  color: rgba(201, 209, 219, 0.58);
+  font-weight: 500;
+}
+
+.close-button:hover {
+  background-color: rgba(83, 97, 113, 0.62);
+  color: rgba(237, 242, 247, 0.84);
+}
+
+vte-terminal {
+  margin-top: 16px;
+  background-color: transparent;
+}

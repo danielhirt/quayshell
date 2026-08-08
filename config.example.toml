@@ -1,0 +1,14 @@
+[window]
+width = 380
+height = 72
+margin = 8
+# Omit monitor to start on the focused output.
+# monitor = "HDMI-A-1"
+# dock_namespace = "nwg-dock"
+max_scale = 2.5
+cross_monitor = true
+
+[terminal]
+font = "Monospace 11"
+# Omit shell to use $SHELL.
+# shell = "/bin/bash"
